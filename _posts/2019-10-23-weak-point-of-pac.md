@@ -294,7 +294,7 @@ DEFCON 의 발표에서는 logd 서비스에서 발생하는 **null-pointer dere
 정리 해 봅시다!  
 로컬의 공격자 (같은 디바이스 내 다른 프로세스) 는 공격자의 프로세스에서 Sign 된 포인터를 생성할 수 있습니다. 시스템 프로세스에서 그 포인터들이 사용될 때, Zero Context 를 사용한다면 검증을 통과할 수 있게 됩니다.  
 
-이전의 post 에서 PAC 의 도입으로 인해 ROP/JOP 등의 Code Reuse Attack 이 엄청나게 어려워졌다고 말씀드렸었는데 이로 인해 JOP 가 다시 가능해집니다! A-iKey 와 Zero Context 를 사용하는 모든 branch 인스트럭션은 JOP 가젯으로써 활용될 수 있습니다. 또한 일부 가젯은 Context 레지스터를 제어하는데도 사용할 수 있을 것입니다.  
+[이전의 post](https://rls1004.github.io/2019-08-29-pac/) 에서 PAC 의 도입으로 인해 ROP/JOP 등의 Code Reuse Attack 이 엄청나게 어려워졌다고 말씀드렸었는데 이로 인해 JOP 가 다시 가능해집니다! A-iKey 와 Zero Context 를 사용하는 모든 branch 인스트럭션은 JOP 가젯으로써 활용될 수 있습니다. 또한 일부 가젯은 Context 레지스터를 제어하는데도 사용할 수 있을 것입니다.  
 
 JOP 는 살아났는데 ROP 는 어떨까요? Return Address 는 함수 프롤로그에서 PACISP 에 의해 Sign 되고 에필로그에서 RETAB 에 의해 검증됩니다. B-iKey 를 사용하는 것인데 B-Key 는 프로세스마다 유니크합니다. 또한 Context 로는 SP 를 사용하기 때문에 private 합니다. 결론적으로 ROP 는 어렵습니다 :(  
 
@@ -303,7 +303,7 @@ JOP 는 살아났는데 ROP 는 어떨까요? Return Address 는 함수 프롤�
 **A-Key** 는 디바이스마다 다릅니다. 각 디바이스가 부팅될 때마다 새로 바뀝니다. 같은 디바이스 내의 모든 프로세스는 동일한 A-Key 를 사용합니다.  
 **B-Key** 는 프로세스마다 다릅니다. 프로세스가 재시작 될 때마다 새로 바뀝니다. 서로 다른 프로세스는 서로 다른 B-Key 를 사용합니다.  
 
-## Performance 와 Security 사이의 Trace-off
+## Performance 와 Security 사이의 Trade-off
 공유 라이브러이에는 A-Key 를 이용해 Sign 되는 수 많은 함수 포인터가 있습니다. 공유 라이브러리의 메모리 영역은 새로운 프로세스를 생성할 때 **COW(Copy-on-Write)**[^cra] 방식을 사용합니다. 때문에 서로 다른 프로세스에서 서로 다른 A-Key를 이용해 포인터에 Sign 한다면 새로운 프로세스를 생성할 때 공유 라이브러리들을 복사하기 위해 더 많은 시간과 메모리 공간이 필요하게 됩니다.  
 
 <center><img src="/img/pac_2_16.png" class="effect"></center>  
