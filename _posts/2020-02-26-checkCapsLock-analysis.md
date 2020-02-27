@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "checkCapsLock() analysis"
-image: /img/202002/caps.png
+image: /img/202002/caps.PNG
 tags: [capslock, programming, javascript]
 ---
 
@@ -63,9 +63,9 @@ function checkCapsLock( e ) {
 	 }
 	}
 ```
-그리고 브라우저에 따라 event.keyCode 또는 event.which를 사용해야 하기 때문에 if문을 나눠놓은 것 같습니다. 이건 키 코드의 종류를 가져옵니다.  
-문제는 shift 키의 정보를 다룰 때 발생합니다. Internet Explorer 4+ 의 경우에는 event에서 shiftKey의 정보를 가져오지만 나머지 경우에는 which로 가져온 키 코드의 정보를 16(shift에 해당하는 코드)과 비교합니다.  
-하지만 onKeyPress 이벤트의 경우에는 shift 키를 처리하지 않고 결과 문자만 다루기 때문에 shift에 해당하는 키 코드는 전달되지 않습니다.  
+브라우저에 따라 event.keyCode 또는 event.which를 사용해야 하기 때문에 if문을 나눠놓은 것 같습니다. 이건 키 코드의 종류를 가져옵니다.  
+문제는 shift 키의 정보를 다룰 때 발생합니다. Internet Explorer 4+ 의 경우에는 event에서 shiftKey의 정보를 가져오지만 나머지 브라우저의 경우에는 which로 가져온 키 코드의 정보를 16(shift에 해당하는 코드)과 비교합니다.  
+하지만 `onKeyPress` 이벤트의 경우에는 shift 키를 처리하지 않고 **결과 문자**만 다루기 때문에 shift에 해당하는 키 코드는 전달되지 않습니다.  
 
 이로 인해 myShiftKey는 항상 false가 됩니다.  
 shift를 검사하고 나면, shift를 누르지 않은 상태로 대문자가 쓰여진 경우와 shift를 누른 상태에서 소문자가 쓰여진 경우에 대해 Caps Lock이 걸렸다고 alert를 띄웁니다.  
