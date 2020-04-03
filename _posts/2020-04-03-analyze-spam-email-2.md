@@ -159,6 +159,15 @@ var Utf8={};Utf8.encode=function(strUni){var strUtf=strUni.replace(/[\u0080-\u07
 Utf8.decode=function(strUtf){var strUni=strUtf.replace(/[\u00e0-\u00ef][\u0080-\u00bf][\u0080-\u00bf]/g,function(c){var cc=((c.charCodeAt(0)&0x0f)<<12)|((c.charCodeAt(1)&0x3f)<<6)|(c.charCodeAt(2)&0x3f);return String.fromCharCode(cc);});strUni=strUni.replace(/[\u00c0-\u00df][\u0080-\u00bf]/g,function(c){var cc=(c.charCodeAt(0)&0x1f)<<6|c.charCodeAt(1)&0x3f;return String.fromCharCode(cc);});return strUni;}
 ```
 
-이 외에도 몇 개의 scam 메일을 받았지만 이전 게시물의 방식과 같기 때문에 생략합니다.  
+# +) 2020-03-22 : ID 계정이 곧 삭제되었습니다
+
+![mail](/img/202004/spam_08.png)
+
+메일을 늦게 확인해서 사이트는 닫혔습니다.  
+하지만 이름, 주소, 핸드폰 기종 등 모든 정보가 잘못 되었기에 스팸임을 금방 알 수 있었습니다.
+
+---
+
+이 외에도 몇 개의 스팸 메일을 받았지만 이전 게시물의 방식과 같기 때문에 생략합니다.  
 
 다들 스팸 조심하세요.
