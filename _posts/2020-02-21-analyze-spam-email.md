@@ -2,7 +2,7 @@
 layout: post
 title: "Analyze Spam Email"
 image: /img/spam.png
-tags: [spam, phishing]
+tags: [spam, phishing, scam]
 ---
 
 최근 받았던 스팸 메일 다섯통을 정리했습니다.
