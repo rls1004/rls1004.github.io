@@ -132,4 +132,4 @@ if (document.getElementById) {
 코드를 이렇게 작성한다면 문제가 없지만, 기존의 많은 코드가 첫 번째 코드를 사용해서 처리하고 있습니다.  
 이 문제를 해결하는 가장 간단한 방법이 document.all을 false로 만드는 것 입니다.  
 
-종합해서 보면 Internet Explorer 4 이상의 낡은 브라우저에서만 Caps Lock 검사가 제대로 이루어질 것으로 보입니다. 어쨋든 궁금증은 해결됐습니다.
+종합해서 보면 Internet Explorer 4 이상의 낡은 브라우저에서만 Caps Lock 검사가 제대로 이루어질 것으로 보입니다. 어쨌든 궁금증은 해결됐습니다.
