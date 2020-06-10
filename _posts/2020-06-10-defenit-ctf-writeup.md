@@ -67,7 +67,7 @@ QR 코드의 크기가 매번 달라지기 때문에 비트 배열의 1행을 �
 <center><img src="/img/202006/defenit_qr_03.PNG" class="effect" width="45%"><img src="/img/202006/defenit_qr_04.PNG" class="effect" width="45%" style="margin-left:3%"></center>  
 이미지가 올바르게 생성되는 것을 확인할 수 있습니다.  
 
-이제 이미지의 QR 코드를 디코딩해야 합니다. QR 코드와 관련된 다양한 라이브러리가 존재하지만 `Zxing`을 제외하고는 무슨 이유인지 문제에서 생성한 QR 코드를 제대로 해석하지 못합니다. `Zxing`은 구글에서 제공하는 오픈소스로 Zebra Crossing의 약자입니다. QR코드 스캔 어프리케이션의 대다수가 이를 이용하고 있다고 합니다.  
+이제 이미지의 QR 코드를 디코딩해야 합니다. QR 코드와 관련된 다양한 라이브러리가 존재하지만 `Zxing`을 제외하고는 무슨 이유인지 문제에서 생성한 QR 코드를 제대로 해석하지 못합니다. `Zxing`은 구글에서 제공하는 오픈소스로 Zebra Crossing의 약자입니다. QR코드 스캔 어플리케이션의 대다수가 이를 이용하고 있다고 합니다.  
 
 전체 코드입니다. zxing은 python3 부터 지원되는데 pwntool은 아직 python3를 지원하지 않는 줄 알고 코드를 따로 짰습니다. ㅎㅁㅎ  
 ```python
@@ -140,7 +140,7 @@ print(barcode.raw)
 <center><img src="/img/202006/defenit_min_04.PNG" class="effect"></center>
 
 
-저는 지뢰찾기 고수여서 1분만에 클리어하고 flag를 받았습니다.
+저는 지뢰찾기 고수여서 33초만에 클리어하고 flag를 받았습니다.
 
 # Reversing
 
@@ -168,7 +168,7 @@ print(barcode.raw)
 
 <center><img src="/img/202006/defenit_mixmix_04.PNG" class="effect"></center>
 
-`sub_108B()` 함수에서는 그걸 한 번 더 섞습니다.. 여기엔 202c40rhk 202C44 배열도 사용되는데, 둘 다 rand_202040을 이용하여 만들어진 배열이기 때문에 두 배열 역시 항상 같은 값을 같은 순서로 저장하고 있습니다.
+`sub_108B()` 함수에서는 그걸 한 번 더 섞습니다.. 여기엔 202C40과 202C44 배열도 사용되는데, 둘 다 rand_202040을 이용하여 만들어진 배열이기 때문에 두 배열 역시 항상 같은 값을 같은 순서로 저장하고 있습니다.
 
 <center><img src="/img/202006/defenit_mixmix_05.PNG" class="effect"></center>
 
