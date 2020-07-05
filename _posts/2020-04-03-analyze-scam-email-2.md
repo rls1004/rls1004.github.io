@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "Analyze Spam Email 2"
-image: /img/spam.png
-tags: [spam, phishing, scam]
+image: /img/scam.jpg
+tags: [phishing, scam]
 ---
 
 드디어 Apple을 사칭하는 스팸 메일을 받았습니다.
