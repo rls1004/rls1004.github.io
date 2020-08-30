@@ -123,9 +123,14 @@ entitlements가 존재하는 경우, XML plist 파일 형식으로 바이너리�
 이러한 entitlements는 iOS와 macOS 전체에서 검사되며 수천가지가 넘는 것들이 있습니다. (조나단 레빈이 이를 검색할 수 있도록 모든 항목의 [카탈로그]("http://newosxbook.com/ent.jl")를 작성 함)  
 
 <center>
-<img src="/img/202008/psychic_paper_09.png" style="display: inline-block; vertical-align: top;margin-right:100px;" width="40%" />
-<img src="/img/202008/psychic_paper_10.png" style="display: inline-block; vertical-align: top;" width="40%"/>
+<div style="width:40%; display: inline-block;vertical-align: top;margin-right:100px">
+<img src="/img/202008/psychic_paper_09.png"/>
+</div>
+<div style="width:40%; display: inline-block;vertical-align: top;">
+<img src="/img/202008/psychic_paper_10.png"/>
+</div>
 </center>
+
 중요한 것은 iOS의 모든 third party 앱이 가능한한 적은 수의 파일, 서비스 및 커널 API에 접근할 수 있는 컨테이너 형 환경에 배치되는데 entitlements를 사용하여 해당 컨테이너에 구멍을 뚫거나 컨테이너를 제거할 수 있게 됩니다.  
 <br>
 
