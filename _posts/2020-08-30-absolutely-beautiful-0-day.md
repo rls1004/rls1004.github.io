@@ -120,7 +120,7 @@ entitlements가 존재하는 경우, XML plist 파일 형식으로 바이너리�
 </plist>
 ```
 이는 바이너리가 `task_for_pid-allow` entitlements를 보유함을 의미합니다. iOS에서는 일반적으로 mach trap인 task_for_pid()를 허용하지 않습니다. 하지만 이 entitlements를 보유한 경우에는 이를 호출할 수 있습니다.  
-이러한 entitlements는 iOS와 macOS 전체에서 검사되며 수천가지가 넘는 것들이 있습니다. (조나단 레빈이 이를 검색할 수 있도록 모든 항목의 [카탈로그]("http://newosxbook.com/ent.jl")를 작성 함)  
+이러한 entitlements는 iOS와 macOS 전체에서 검사되며 수천가지가 넘는 것들이 있습니다. (조나단 레빈이 이를 검색할 수 있도록 모든 항목의 [카탈로그](http://newosxbook.com/ent.jl)를 작성 함)  
 
 <center>
 <div style="width:40%; display: inline-block;vertical-align: top;margin-right:100px">
