@@ -177,7 +177,7 @@ Card 객체를 새로 할당한 후에 myDict에 추가합니다. 그리고 Card
 
 vtable 구성은 Card 생성자를 따라가면 확인할 수 있습니다.
 
-```asm
+```
 ; vtable for Card
 .data.rel.ro:000000000000ABC0 off_ABC0        dq offset _ZN4Card4initEjj
 .data.rel.ro:000000000000ABC0                                         ; DATA XREF: Card::Card(void)+10↑o
@@ -309,7 +309,7 @@ unsigned __int64 __fastcall card_setName(int conn, struct_card *card)
   }
 ```
 
-```asm
+```
 ; point 1
 .text:0000000000002C97                 movzx   edx, al         ; n
 .text:0000000000002C9A                 mov     rsi, qword ptr [rbp+name_buffer_size+4] ; buf
@@ -319,7 +319,7 @@ unsigned __int64 __fastcall card_setName(int conn, struct_card *card)
 .text:0000000000002CA8                 call    _recv
 ```
 
-```asm
+```
 ; point 2
 .text:0000000000002CB5                 jle     short loc_2CBE
 .text:0000000000002CB7                 mov     [rbp+name_buffer_size], 100h
