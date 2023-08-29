@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Hacker's Profile Write-up"
-image: /img/hp_00.png
+image: /img/202308/hp_00.png
 tags: [CTF, write-up, pwnable]
 ---
 
