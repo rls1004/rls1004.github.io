@@ -4,7 +4,7 @@ layout: null
 
 @import url(https://fonts.googleapis.com/css?family=Noto+Sans);
 @import url(https://fonts.googleapis.com/earlyaccess/nanumgothic.css);
-@import url("pygment_highlights.css");
+@import url("syntax.css");
 
 /* --- General --- */
 
@@ -686,14 +686,14 @@ table tr td :last-child {
 /* --- Code blocks --- */
 
 pre {
-  font-size: 16px;
+  font-size: 13px;
   line-height: 1.5em;
 }
 pre code {
-  white-space: pre;
+  white-space: pre-wrap;
 }
 /* aaaaaaaaaa */
-pre.highlight, .highlight > pre, td.code pre {
+/* pre.highlight, .highlight > pre, td.code pre {
   background-color: #FAFAFA;
   background-image: linear-gradient(#F9F9F9 50%, #FDFDFD 50%);
   background-repeat: repeat;
@@ -701,7 +701,7 @@ pre.highlight, .highlight > pre, td.code pre {
   background-position: 0px 10px;
   border-left: 7px solid #444;
   font-family: "D2Coding";
-}
+} */
 /* font-family: "D2Coding" */
 
 code table, code table td, code table th, code table tbody, code table tr,
