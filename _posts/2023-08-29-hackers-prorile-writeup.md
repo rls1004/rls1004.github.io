@@ -9,7 +9,7 @@ tags: [CTF, write-up, pwnable]
 
 ![](/img/202308/hp_01.png)
 
-```
+```plain
 Hey, if you're after a profile upgrade, count me in — I'll give it that extra touch of cool.
 
 Hint : race condition + UAF
@@ -26,6 +26,8 @@ Hint : race condition + UAF
 ## Rough Analysis
 
 ```python
+# app.py
+
 wrapper = ctypes.cdll.LoadLibrary("/home/ubuntu/client")
 
 createCard_func = wrapper.createCard
@@ -175,7 +177,7 @@ Card 객체를 새로 할당한 후에 myDict에 추가합니다. 그리고 Card
 
 vtable 구성은 Card 생성자를 따라가면 확인할 수 있습니다.
 
-```
+```asm
 ; vtable for Card
 .data.rel.ro:000000000000ABC0 off_ABC0        dq offset _ZN4Card4initEjj
 .data.rel.ro:000000000000ABC0                                         ; DATA XREF: Card::Card(void)+10↑o
@@ -216,7 +218,7 @@ token은 생성된 Card를 수정/삭제 할 때 유효성 검증을 위한 수�
 
 Card 객체의 구조는 getter와 setter 분석을 통해 쉽게 알 수 있습니다.
 
-```
+```plain
 ; struct of Card
 this + 0x00 : vtable
 this + 0x08 : Name buffer
@@ -274,7 +276,7 @@ free 된 Card 객체 위치에 name buffer 등 컨트롤 가능한 버퍼를 재
 
 ### scenario
 
-```
+```plain
 1. 첫 번째 스레드 : setName 실행, recv 기다리는 상태
 2. 두 번째 스레드 : deleteCard 실행
 3. 세 번째 스레드 : 버퍼 할당, target card의 vtable 주소를 fake vtable 주소로 overwrite
@@ -307,7 +309,7 @@ unsigned __int64 __fastcall card_setName(int conn, struct_card *card)
   }
 ```
 
-```
+```asm
 ; point 1
 .text:0000000000002C97                 movzx   edx, al         ; n
 .text:0000000000002C9A                 mov     rsi, qword ptr [rbp+name_buffer_size+4] ; buf
@@ -317,7 +319,7 @@ unsigned __int64 __fastcall card_setName(int conn, struct_card *card)
 .text:0000000000002CA8                 call    _recv
 ```
 
-```
+```asm
 ; point 2
 .text:0000000000002CB5                 jle     short loc_2CBE
 .text:0000000000002CB7                 mov     [rbp+name_buffer_size], 100h
