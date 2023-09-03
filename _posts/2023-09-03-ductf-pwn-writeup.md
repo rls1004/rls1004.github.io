@@ -4,6 +4,8 @@ title: "DUCTF pwn Write-up"
 image: /img/202309/du_00.png
 tags: [CTF, write-up, pwnable]
 ---
+* TOC
+{:toc}
 
 # DUCTF pwn Write up
 
