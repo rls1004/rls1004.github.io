@@ -9,7 +9,7 @@ tags: [v8, Maglev, internals]
 
 # Intro
 
-I found an interesting [tweet](https://x.com/mistymntncop/status/1800485977049514474) on Twitter and analyzed it myself.  
+I found an interesting [tweet](https://x.com/mistymntncop/status/1800485977049514474) on Twitter and analyzed it.  
 This is about how to check if a particular function has completed Maglev compilation without using debug functions.  
 To summarize, the number of recursive function calls may be different in the Interpreter version and the Maglev compiled version, so this can be used to distinguish them.    
   
