@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "A deep-dive into v8 call stack overflow with Maglev"
+title: "Journey of v8 call stack overflow with Maglev"
 image: /img/202406/v8_00.png
 tags: [v8, Maglev, internals]
 ---
