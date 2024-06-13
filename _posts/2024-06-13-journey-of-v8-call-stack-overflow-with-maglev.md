@@ -454,7 +454,7 @@ After Maglev compilation, the size of the stack frame used by the `target` funct
   
 Where did this get smaller?  
 
-backtreace before Maglev:  
+backtrace before Maglev:  
 ```
 (lldb) bt
 * thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 17.1
@@ -473,7 +473,7 @@ backtreace before Maglev:
 (unsigned long) 0x0000000306f1b248
 ```
 
-backtreace after Maglev:  
+backtrace after Maglev:  
 ```
 (lldb) bt
 * thread #1, queue = 'com.apple.main-thread', stop reason = breakpoint 16.1
