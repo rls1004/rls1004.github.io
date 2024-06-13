@@ -428,7 +428,7 @@ Target 0: (d8) stopped.
 (long) 0x00000000000f5f88
 ```
   
-stack limit check before Maglev:  
+stack limit check after Maglev:  
 ```
 (lldb) c
 Process 15726 resuming
