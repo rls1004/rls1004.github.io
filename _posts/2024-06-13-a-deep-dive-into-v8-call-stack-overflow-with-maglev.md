@@ -172,7 +172,7 @@ Handle<Code> JSEntry(Isolate* isolate, Execution::Target execution_target,
 }
 ```
   
-src/builtins/x64/builtins-x64.cc  
+src/builtins/x64/builtins-x64.cc
 ```cpp
 void Builtins::Generate_JSEntry(MacroAssembler* masm) {
   Generate_JSEntryVariant(masm, StackFrame::ENTRY, Builtin::kJSEntryTrampoline);
@@ -259,7 +259,7 @@ void Builtins::Generate_CallFunction(MacroAssembler* masm,
 }
 ```
   
-src/codegen/x64/macro-assembler-x64.cc  
+src/codegen/x64/macro-assembler-x64.cc
 ```cpp
 void MacroAssembler::InvokeFunctionCode(Register function, Register new_target,
                                         Register expected_parameter_count,
@@ -295,7 +295,7 @@ void MacroAssembler::CallJSFunction(Register function_object) {
 ```
 `InterpreterEntryTrampoline` is executed for `function_object`.  
   
-src/builtins/x64/builtins-x64.cc  
+src/builtins/x64/builtins-x64.cc
 ```cpp
 void Builtins::Generate_InterpreterEntryTrampoline(
     MacroAssembler* masm, InterpreterEntryTrampolineMode mode) {
@@ -346,7 +346,7 @@ This will further expand(=subq) the stack as much as `rcx`, and if `rsp` exceeds
 
 This is an analysis of the size of the Stack Limit.  
   
-src/codegen/x64/macro-assembler-x64.cc  
+src/codegen/x64/macro-assembler-x64.cc
 ```cpp
 Operand MacroAssembler::StackLimitAsOperand(StackLimitKind kind) {
   DCHECK(root_array_available());
@@ -358,8 +358,8 @@ Operand MacroAssembler::StackLimitAsOperand(StackLimitKind kind) {
   return Operand(kRootRegister, static_cast<int32_t>(offset));
 }
 ```
- . 
-src/execution/isolate-data.h  
+  
+src/execution/isolate-data.h
 ```cpp
   static constexpr int real_jslimit_offset() {
     return stack_guard_offset() + StackGuard::real_jslimit_offset();
@@ -373,7 +373,7 @@ src/execution/isolate-data.h
 #undef V
 ```
  
-src/execution/stack-guard.h  
+src/execution/stack-guard.h
 ```cpp
   static constexpr int real_jslimit_offset() {
     return offsetof(StackGuard, thread_local_) +
@@ -398,7 +398,7 @@ void StackGuard::ThreadLocal::Initialize(Isolate* isolate,
 ```
 As much as `kLimitSize` is available at the current stack position.  
   
-src/common/globals.h  
+src/common/globals.h
 ```c
 #define V8_DEFAULT_STACK_SIZE_KB 984
 ```
