@@ -303,7 +303,10 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages (= 232)
+  jekyll (>= 3.6.3)
   jekyll-paginate
+  kramdown (>= 2.3.0)
+  nokogiri (>= 1.16.5)
   tzinfo-data
   webrick (~> 1.9)
 
