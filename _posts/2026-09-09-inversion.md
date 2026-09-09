@@ -15,13 +15,13 @@ Fixing the reported bug and auditing its variants are different tasks. A patch a
 
 ---
 
-# Pattern 1 — invalidation coverage gaps
+## Pattern 1 — invalidation coverage gaps
 
 JSC caches compiled code, resolved callee addresses, and refcounted data retained for concurrent readers. Each cache is valid only while the state it mirrors remains unchanged. When code is detached, a GC phase ends, or a reader finishes, the corresponding cached or retained state has to be cleared. Miss one of those relationships and a later access can reach freed data or detached code.
 
 That invalidation work is spread across many functions in the runtime, each triggered by a specific event and each responsible for clearing a specific set of caches. When someone adds a new cache without wiring it into the existing invalidation code, or adds a new invalidation operation without covering every state the runtime can be in, the coverage matrix ends up with holes. The two cases below expose opposite holes in that matrix: Case A added a new clearing operation without accounting for every active reader, while Case B added a new cache without connecting it to an existing invalidation operation.
 
-## Case A — W23 GC concurrent-retained data pair
+### Case A — W23 GC concurrent-retained data pair
 
 - [`e69c479`](https://github.com/WebKit/WebKit/commit/e69c47917811c2d01befd9e16205c756c86e06a6) : JSString use-after-free via `GCOwnedDataScope` and atomization swap. [W23 report](https://webkitweekly.com/report/2026-W23/commits/e69c479178).
 - [`c8e53c7`](https://github.com/WebKit/WebKit/commit/c8e53c7440c6c74d1c2fa76b7a6a30fd44ac3706) : `Heap::clearConcurrentRetainedDataIfPossible()` must not run while concurrent marking is active. [W23 report](https://webkitweekly.com/report/2026-W23/commits/c8e53c7440).
@@ -40,7 +40,7 @@ The new drain missed that case. `clearConcurrentRetainedDataIfPossible()` avoide
 
 When a fix adds a new operation that runs concurrently (like a sweeper timer), that operation starts with a list of `if` conditions checking whether it's safe to run right now. Whoever wrote the list wrote down the cases they thought of. Some cases get missed. When you review a fix that adds a new concurrent operation, that safety-check list is the first place to read.
 
-## Case B — W33 MicrotaskCallCache retains detached CodeBlock entry points
+### Case B — W33 MicrotaskCallCache retains detached CodeBlock entry points
 
 - [`75a9d41`](https://github.com/WebKit/WebKit/commit/75a9d414a4a8b98d26840162d103eb16227eaeb6) : JSC MicrotaskCallCache retains detached CodeBlock entry points. [W33 report](https://webkitweekly.com/report/2026-W33/commits/75a9d414a4).
 
@@ -56,13 +56,13 @@ Case A and Case B expose opposite sides of the same matrix. Case A added an inva
 
 ---
 
-# Pattern 2 — the fix missed sibling code paths
+## Pattern 2 — the fix missed sibling code paths
 
-A patch modifies one function, one opcode, one call site. Structurally identical siblings in the same file didn't get touched.
+It modifies one function, one opcode, one call site. Structurally identical siblings in the same file didn't get touched.
 
-Three families here, sitting at different ends of a timing spectrum. Widening had three sibling fixes land in the same week. table64 took two weeks. The WebGL PBO offset pair took eleven.
+The three families span different timelines. The widening fixes landed in the same week, table64 took two weeks, and the WebGL PBO pair took eleven.
 
-## Case C — W34 Wasm validator widening family
+### Case C — W34 Wasm validator widening family
 
 Four commits in W34, all in `Source/JavaScriptCore/wasm/WasmFunctionParser.h`, all fixing the same underlying issue at different opcodes (listed chronologically):
 
@@ -79,7 +79,7 @@ The first of the four (`8f229fb`, try/catch) is the seed. Its commit message not
 
 When an operation is implemented in multiple places, fixing one doesn't fix the others. `WasmFunctionParser` implements `End` in two separate functions: one for normal parsing, and one for parsing code that appears after `br` or `throw` and can't actually execute at runtime. Several other opcodes in the same file also merge control flow. The seed patched one merge site. The three W34 siblings patched three additional sites with the same widening requirement.
 
-## Case D — Wasm table64 migration gaps
+### Case D — Wasm table64 migration gaps
 
 Three commits over two weeks fixing separate gaps in the table64 width transition:
 
@@ -93,7 +93,7 @@ W30's `862994e` handles a missing address-type check on table imports. If a modu
 
 Width migrations are therefore best audited end to end: import validation, metadata storage, constant-expression evaluation, initialization, and JIT bounds assumptions all have to agree on the same width.
 
-## Case E — WebGL PBO offset reinterpret pair
+### Case E — WebGL PBO offset reinterpret pair
 
 Two commits eleven weeks apart, both in `Source/WebCore/platform/graphics/angle/GraphicsContextGLANGLE.cpp`, both fixing the same anti-pattern at sibling GL entry points:
 
@@ -112,11 +112,11 @@ Same file, sibling GL entry points, same underlying offset/pointer ambiguity at 
 
 ---
 
-# Pattern 3 — same shape at sibling subsystems
+## Pattern 3 — same shape at sibling subsystems
 
 The patch adds an authorization or validation pattern at one subsystem. Other subsystems in the same file (or same architectural layer) have the same identifier/handle shape and needed the same treatment.
 
-## Case F — NetworkStorageManager identifier ownership family
+### Case F — NetworkStorageManager identifier ownership family
 
 Four commits over about three months, all touching `Source/WebKit/NetworkProcess/storage/NetworkStorageManager.cpp`:
 
@@ -133,21 +133,19 @@ A compromised WebContent process could therefore submit an identifier associated
 
 The concrete fixes differed. IDB bound resource identifiers to the sending IPC connection at the registry choke point. FileSystem and DOMCache recovered the resource's owning site and checked whether that site was allowed for the sender via `isSiteAllowedForConnection`. The shared invariant was sender-to-resource ownership, not a uniform lookup implementation.
 
-W21 fixes IDB. A broader sibling audit followed twelve weeks later, led by a different author through two same-day commits covering FileSystem and DOMCache. That same author enables site validation by default the following week.
-
-The missing-ownership-check pattern remained in FileSystem and DOMCache for twelve weeks after the IDB fix. Once the broader audit began, three commits followed within a week.
+W21 fixed IDB. Twelve weeks later, a different author landed two same-day fixes covering FileSystem and DOMCache, then enabled site validation by default the following week. Once the broader audit began, three commits followed within a week.
 
 ---
 
-# When the file itself is the signal
+## When the file itself is the signal
 
 Three reports touch `Source/JavaScriptCore/heap/Heap.cpp` over ten weeks: the W23 pair from Pattern 1, plus the W33 MicrotaskCallCache fix from the same pattern. All three sit in JSC's lifetime and invalidation machinery, although they involve different consumers: retained GC data in W23 and detached JIT code in W33. `NetworkStorageManager.cpp` from Pattern 3 shows the same signal from a different subsystem, with four fixes in a three-month window. `GraphicsContextGLANGLE.cpp` from Case E shows it with just two, both touching the same file with related bug shapes.
 
-Repeated security fixes in the same file are a useful prioritization signal. They do not identify a specific bug, but they show where patterns from earlier fixes may be worth applying again.
+Repeated fixes in the same file are a useful prioritization signal. They do not identify a specific bug, but they show where patterns from earlier fixes may be worth applying again.
 
 ---
 
-# The three shapes
+## The three patterns
 
 Invalidation coverage gaps. A cache doesn't get invalidated by the mechanism that should reach it, or an invalidation operation itself has a race in its guard list. The tell: a diff that adds one line calling a new invalidation function into an existing invalidation pass, or adds a guard clause to a periodic clearing routine. Both mean the invalidation matrix had a hole. Ask which other caches or which other invalidation triggers might have the same missing edge.
 
@@ -157,13 +155,13 @@ Cross-subsystem shape. The patch adds an authorization or validation pattern at 
 
 ---
 
-# Closing
+## Closing
 
 Across the six cases, what matters is not primitive severity, but how long the broader family went unaudited after the pattern first became visible.
 
 W34 Wasm widening had three sibling fixes land in the same week. W23 GC pair, same week. Wasm table64 took two weeks between the first fix and the two further table64 gaps. MicrotaskCallCache existed for five weeks unwired before `deleteAllCodeBlocks()` was updated to clear it. WebGL PBO offset took eleven weeks between the two commits fixing the same `reinterpret_cast` anti-pattern at sibling GL entry points. NetworkStorageManager took twelve weeks between the IDB fix and the sibling subsystems.
 
-Every gap between a fix that exposes a pattern and its family audit is a window during which the pattern is visible to anyone reading the diff. The number matters less than the shape. Same-week clusters suggest that the patch expanded into a broader audit. Cross-week clusters show what can remain exposed when that expansion does not happen immediately.
+Every delay between a change that exposes a pattern and the broader audit is a window during which that pattern is visible to anyone reading the diff. The number matters less than the shape. Same-week clusters suggest that the patch expanded into a broader audit. Cross-week clusters show what can remain exposed when that expansion does not happen immediately.
 
 When a fix lands, diff readers should ask one question: which sibling paths, if any, remain unaudited?
 
