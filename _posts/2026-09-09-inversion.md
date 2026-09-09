@@ -1,9 +1,9 @@
----
+
 layout: post
 title: "What WebKit fixes leave behind: six cases in variant auditing"
 image: /img/webkit.svg
 tags: [webkit]
----
+
 * TOC
 {:toc}
 
@@ -13,7 +13,7 @@ Fixing the reported bug and auditing its variants are different tasks. A patch a
 
 [WebKit Weekly](https://webkitweekly.com/) publishes per-commit security analyses of WebKit fixes each week. Reading the archive for fixes that exposed related gaps, six cases stood out from the last few months. They fall into three patterns, summarized in the taxonomy at the end.
 
----
+
 
 ## Pattern 1 — invalidation coverage gaps
 
@@ -56,7 +56,7 @@ The fix adds one line, `vm.clearMicrotaskCallCaches()`, to `deleteAllCodeBlocks(
 
 Case A and Case B expose opposite sides of the same matrix. Case A added an invalidation operation but missed one category of active reader. Case B added a cache but missed one invalidation trigger. A new cache should be checked against every existing invalidation path, and a new invalidation path against every cache it is expected to clear.
 
----
+
 
 ## Pattern 2 — the fix missed sibling code paths
 
@@ -112,7 +112,7 @@ The primitives differ. W24's write is bounded by allocatable PBO sizes, making a
 
 Same file, sibling GL entry points, same underlying offset/pointer ambiguity at different layers. Eleven weeks is a long time for a sibling path in the same file to remain unfixed once the pattern is visible in the diff.
 
----
+
 
 ## Pattern 3 — same shape at sibling subsystems
 
@@ -137,7 +137,7 @@ The concrete fixes differed. IDB bound resource identifiers to the sending IPC c
 
 W21 fixed IDB. Twelve weeks later, a different author landed two same-day fixes covering FileSystem and DOMCache, then enabled site validation by default the following week. Once the broader audit began, three commits followed within a week.
 
----
+
 
 ## When the file itself is the signal
 
@@ -145,7 +145,7 @@ Three reports touch `Source/JavaScriptCore/heap/Heap.cpp` over ten weeks: the W2
 
 Repeated fixes in the same file are a useful prioritization signal. They do not identify a specific bug, but they show where patterns from earlier fixes may be worth applying again.
 
----
+
 
 ## The three patterns
 
@@ -155,7 +155,7 @@ Fix missed sibling code paths. The patch modifies one instance of a class of sim
 
 Cross-subsystem shape. The patch adds an authorization or validation pattern at one subsystem, and the file (or the surrounding directory) contains sibling subsystems with the same identifier/handle shape. The tell: a new call to an origin check or capability lookup added to one message handler, with structurally similar handlers in the same file untouched. Ask which other resource types in the same file received the same treatment. Same-file clustering is often what surfaces the family in the first place.
 
----
+
 
 ## The timing gap
 
