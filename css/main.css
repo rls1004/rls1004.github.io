@@ -331,11 +331,12 @@ footer .theme-by {
 .post-preview {
   padding: 20px 0;
   border-bottom: 1px solid #eee;
+  border-radius: 5%;
 }
 
 @media only screen and (min-width: 768px) {
   .post-preview {
-    padding: 35px 0;
+    margin: 35px 0;
   }
 }
 
@@ -799,5 +800,6 @@ td.gutter {
 }
 
 #markdown-toc ul{
-  padding-inline-start: 15px;
- }
+  padding-inline-start: 25px;
+  margin-bottom: 10px;
+}
