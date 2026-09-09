@@ -24,7 +24,7 @@ That invalidation work is spread across many functions in the runtime, each trig
 ### Case A — W23 GC concurrent-retained data pair
 
 - [`e69c479`](https://github.com/WebKit/WebKit/commit/e69c47917811c2d01befd9e16205c756c86e06a6) : JSString use-after-free via `GCOwnedDataScope` and atomization swap. [W23 report](https://webkitweekly.com/report/2026-W23/commits/e69c479178).
-- [`c8e53c7`](https://github.com/WebKit/WebKit/commit/c8e53c7440c6c74d1c2fa76b7a6a30fd44ac3706) : `Heap::clearConcurrentRetainedDataIfPossible()` must not run while concurrent marking is active. [W23 report](https://webkitweekly.com/report/2026-W23/commits/c8e53c7440).
+- [`c8e53c7`](https://github.com/WebKit/WebKit/commit/c8e53c74403ff33f7dcbafbe74b77f3c67e316d9) : `Heap::clearConcurrentRetainedDataIfPossible()` must not run while concurrent marking is active. [W23 report](https://webkitweekly.com/report/2026-W23/commits/c8e53c7440).
 
 A `JSString` holds its actual character bytes in a companion `StringImpl`. `StringImpl` is refcounted. When its last reference goes away, the destructor runs and the memory is freed immediately. Native string operations get raw views into these buffers via `GCOwnedDataScope`, a stack-scoped guard that pins the owning `JSString`. Atomization is JSC's string interning: when a `JSString` is used as a property key and a canonical atom already exists, the engine replaces the string's backing `StringImpl` with the shared one and moves the old impl's last strong reference into a per-VM retained list.
 
@@ -85,9 +85,9 @@ When an operation is implemented in multiple places, fixing one doesn't fix the 
 
 Three commits over two weeks fixing separate gaps in the table64 width transition:
 
-- [`862994e`](https://github.com/WebKit/WebKit/commit/862994e2cc9c67df80c6ef6f36c73fbbd7e7614a) : Wasm table imports don't check that the address type matches. [W30 report](https://webkitweekly.com/report/2026-W30/commits/862994e2cc).
-- [`b91045c`](https://github.com/WebKit/WebKit/commit/b91045c99b8a7c68df9d3f5b8e08e51a5f97a2f4) : Do not truncate table64 maximum size to uint32_t. [W31 report](https://webkitweekly.com/report/2026-W31/commits/b91045c99b).
-- [`e942b93`](https://github.com/WebKit/WebKit/commit/e942b93cda98c85f8c15f5add8ef8ecb85f5d90a) : Active element segment offsets are truncated for a table64. [W31 report](https://webkitweekly.com/report/2026-W31/commits/e942b93cda).
+- [`862994e`](https://github.com/WebKit/WebKit/commit/862994e2cc372c16a11440b96b4f5c34158431f2) : Wasm table imports don't check that the address type matches. [W30 report](https://webkitweekly.com/report/2026-W30/commits/862994e2cc).
+- [`b91045c`](https://github.com/WebKit/WebKit/commit/b91045c99b1bf34920bb033d7af8d4b2a1a82a20) : Do not truncate table64 maximum size to uint32_t. [W31 report](https://webkitweekly.com/report/2026-W31/commits/b91045c99b).
+- [`e942b93`](https://github.com/WebKit/WebKit/commit/e942b93cdaa04a323f26b3b0facbed690ca6db63) : Active element segment offsets are truncated for a table64. [W31 report](https://webkitweekly.com/report/2026-W31/commits/e942b93cda).
 
 Wasm's `Memory64` proposal allows memories beyond 4 GiB, and `table64` extends table indices beyond 2^32 entries. Supporting a wider address type requires every stage that stores, validates, or consumes it to preserve the width. A remaining `uint32_t` field can truncate the value, while an import check that ignores address type can connect code compiled for one width to a table using another.
 
@@ -125,7 +125,7 @@ Four commits over about three months, all touching `Source/WebKit/NetworkProcess
 - [`d854553`](https://github.com/WebKit/WebKit/commit/d85455322dae47dcb4235d0ca0dce0fee75a0fb5) : IndexedDB Connection/Transaction Identifier Confusion. [W21 report](https://webkitweekly.com/report/2026-W21/commits/d85455322d).
 - [`07d83d0`](https://github.com/WebKit/WebKit/commit/07d83d0d699eedc4e80908d99470a5fca06acdc8) : Validate connection access to FileSystem storage with `FileSystemHandleIdentifier`. [W32 report](https://webkitweekly.com/report/2026-W32/commits/07d83d0d69).
 - [`5d1be2c`](https://github.com/WebKit/WebKit/commit/5d1be2cedef6f18889a7c6bb55899aed91c7f16f) : Validate connection access to DOMCache with `DOMCacheIdentifier`. [W32 report](https://webkitweekly.com/report/2026-W32/commits/5d1be2cede).
-- [`df8786e`](https://github.com/WebKit/WebKit/commit/df8786e8b6787d81b5f96e0b91cbc1a67d5cf7fc) : Enable storage site validation. [W33 report](https://webkitweekly.com/report/2026-W33/commits/df8786e8b6).
+- [`df8786e`](https://github.com/WebKit/WebKit/commit/df8786e8b6a8fabb2ad9574914a4f33117f8950e) : Enable storage site validation. [W33 report](https://webkitweekly.com/report/2026-W33/commits/df8786e8b6).
 
 WebKit splits storage work across processes. WebContent runs untrusted JavaScript, while the network process owns persistent storage and services requests for IndexedDB, FileSystem, and CacheStorage through `NetworkStorageManager`.
 
