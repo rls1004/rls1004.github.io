@@ -157,7 +157,7 @@ Cross-subsystem shape. The patch adds an authorization or validation pattern at 
 
 ---
 
-## Closing
+## The timing gap
 
 Across the six cases, what matters is not primitive severity, but how long the broader family went unaudited after the pattern first became visible.
 
