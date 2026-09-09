@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Inversion: six WebKit cases, one audit angle"
+title: "What WebKit fixes leave behind: six cases in variant auditing"
 image: /img/webkit.svg
 tags: [webkit]
 ---
@@ -9,9 +9,9 @@ tags: [webkit]
 
 Some WebKit fixes expose their own variants. A patch closes one route to an attacker-usable primitive—an out-of-bounds read, an unauthorized cross-origin access—but a sibling path in the same code area may still reach the same bad state. Sometimes the fix itself adds an operation with a new gap. In other cases, it extends an existing mechanism to cover one missed case, raising the question of what else remains uncovered.
 
-I've been calling this angle *inversion*. Fixing the reported bug and auditing its variants are different tasks. A patch author is solving the specific failure in front of them. Enumerating every other path to the same primitive is a separate exercise, and it often gets deferred.
+Fixing the reported bug and auditing its variants are different tasks. A patch author is solving the specific failure in front of them. Enumerating every other path to the same primitive is a separate exercise, and it often gets deferred.
 
-[WebKit Weekly](https://webkitweekly.com/) publishes per-commit security analyses of WebKit fixes each week. Reading the archive with inversion in mind, six cases stand out from the last few months. They organize into three shapes, which the taxonomy at the end names.
+[WebKit Weekly](https://webkitweekly.com/) publishes per-commit security analyses of WebKit fixes each week. Reading the archive for fixes that exposed related gaps, six cases stood out from the last few months. They fall into three patterns, summarized in the taxonomy at the end.
 
 ---
 
@@ -58,7 +58,7 @@ Case A and Case B expose opposite sides of the same matrix. Case A added an inva
 
 # Flavor 2 — the fix missed sibling code paths
 
-The classic inversion shape. The patch modifies one function, one opcode, one call site. Structurally identical siblings in the same file didn't get touched.
+A patch modifies one function, one opcode, one call site. Structurally identical siblings in the same file didn't get touched.
 
 Three families here, sitting at different ends of a timing spectrum. Widening had three sibling fixes land in the same week. table64 took two weeks. The WebGL PBO offset pair took eleven.
 
@@ -165,6 +165,6 @@ W34 Wasm widening had three sibling fixes land in the same week. W23 GC pair, sa
 
 Every gap between a fix that exposes a pattern and its family audit is a window during which the pattern is visible to anyone reading the diff. The number matters less than the shape. Same-week clusters suggest that the patch expanded into a broader audit. Cross-week clusters show what can remain exposed when that expansion does not happen immediately.
 
-For someone reading the diff as the fix lands, inversion reduces to one question: which sibling paths, if any, remain unaudited?
+When a fix lands, diff readers should ask one question: which sibling paths, if any, remain unaudited?
 
 If you want to try this on the next few months of WebKit fixes, [WebKit Weekly](https://webkitweekly.com/) is where the per-commit reports live.
