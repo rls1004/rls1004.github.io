@@ -7,7 +7,7 @@ tags: [webkit]
 * TOC
 {:toc}
 
-Some WebKit fixes expose their own variants. A patch closes one route to an attacker-usable primitive—an out-of-bounds read, an unauthorized cross-origin access—but a sibling path in the same code area may still reach the same bad state. Sometimes the fix itself adds an operation with a new gap. In other cases, it extends an existing mechanism to cover one missed case, raising the question of what else remains uncovered.
+Some WebKit fixes expose their own variants. A patch closes one route to an attacker-usable primitive—an out-of-bounds read or an unauthorized cross-origin access—but a sibling path in the same code area may still reach the same bad state. Sometimes the fix itself adds an operation with a new gap. In other cases, it extends an existing mechanism to cover one missed case, raising the question of what else remains uncovered.
 
 Fixing the reported bug and auditing its variants are different tasks. A patch author is solving the specific failure in front of them. Enumerating every other path to the same primitive is a separate exercise, and it often gets deferred.
 
@@ -49,6 +49,8 @@ JSC compiles hot JS functions to native machine code (JIT compilation). Each pie
 `Heap::deleteAllCodeBlocks()` is a proactive invalidation mechanism that detaches compiled `CodeBlock`s from their `ScriptExecutable`s. Any independent cache that stores their entry-point addresses has to be cleared as part of the same operation.
 
 `VM::m_syncResumeCallCache`, a per-VM cache for the async-generator microtask path, was introduced five weeks earlier in [`bafc1f2`](https://github.com/WebKit/WebKit/commit/bafc1f2d7f1e8c6c2eb2ebc395c8f94af5f35c33), but `deleteAllCodeBlocks()` was not updated to clear it. After the detach, the still-live ScriptExecutable could continue to satisfy the cache's lookup key even though the cached CodeBlock was no longer the code installed on that executable. A later microtask resume could therefore reuse an entry point that `deleteAllCodeBlocks()` had intended to retire.
+
+GC-end weak-reference reconciliation would eventually clear the entry if the detached `CodeBlock` became unmarked. The confirmed gap was therefore the period before that reconciliation, during which the executable still matched the cache key and detached code could be selected again.
 
 The fix adds one line, `vm.clearMicrotaskCallCaches()`, to `deleteAllCodeBlocks()`. The commit message notes that Wasm's equivalent cache was already cleared there. The patch applies the same invalidation rule to the JS-side cache.
 
