@@ -15,7 +15,7 @@ Fixing the reported bug and auditing its variants are different tasks. A patch a
 
 ---
 
-# Flavor 1 — invalidation coverage gaps
+# Pattern 1 — invalidation coverage gaps
 
 JSC caches compiled code, resolved callee addresses, and refcounted data retained for concurrent readers. Each cache is valid only while the state it mirrors remains unchanged. When code is detached, a GC phase ends, or a reader finishes, the corresponding cached or retained state has to be cleared. Miss one of those relationships and a later access can reach freed data or detached code.
 
@@ -56,7 +56,7 @@ Case A and Case B expose opposite sides of the same matrix. Case A added an inva
 
 ---
 
-# Flavor 2 — the fix missed sibling code paths
+# Pattern 2 — the fix missed sibling code paths
 
 A patch modifies one function, one opcode, one call site. Structurally identical siblings in the same file didn't get touched.
 
@@ -71,13 +71,13 @@ Four commits in W34, all in `Source/JavaScriptCore/wasm/WasmFunctionParser.h`, a
 - [`261bcb4`](https://github.com/WebKit/WebKit/commit/261bcb42d83f2838cb8245675ffd6e53eebf55bc) : Delegate should widen types like End. [W34 report](https://webkitweekly.com/report/2026-W34/commits/261bcb42d8).
 - [`9dcbd25`](https://github.com/WebKit/WebKit/commit/9dcbd254af217b64f37947d680ce0c6eae0ab7e3) : Argument and Result block types should always widen. [W34 report](https://webkitweekly.com/report/2026-W34/commits/9dcbd254af).
 
-WebAssembly is validated before it runs. The validator type-checks each instruction against an abstract operand stack, tracking what type each value would have. Structured blocks such as if/else and try/catch can produce values through multiple control-flow paths. When those paths converge, the parser has to publish the block's declared result type, rather than the narrower type left behind by whichever arm it parsed last.
+WebAssembly is validated before it runs. The validator type-checks each instruction against an abstract operand stack, tracking what type each value would have. Structured blocks such as if/else and try/catch can produce values through multiple control-flow paths. When those paths converge, the parser has to record the block's declared result type, rather than the narrower type left behind by whichever arm it parsed last.
 
 If widening is skipped, the recorded type is narrower than what the runtime can actually deliver at that merge. For instance, if one branch pushes a specific struct reference and another pushes any reference at all, the merged type should widen to cover both but is left as the narrow specific type. JIT tiers trust this recorded type and compile away the runtime checks that would have caught the mismatch. The result at runtime is a type confusion. Whatever value came from the wider branch gets treated as if it had the narrow type, and downstream operations interpret it according to the wrong structural assumptions.
 
 The first of the four (`8f229fb`, try/catch) is the seed. Its commit message notes that widening had previously only covered if/else, and this patch expanded it to try/catch. The other three commits, landing within 26 hours, fix the sibling sites the seed still didn't reach: the `End` handler in the parser's path for unreachable code, the Delegate opcode, and Argument/Result block types.
 
-When an operation is implemented in multiple places, fixing one doesn't fix the others. `WasmFunctionParser` implements `End` in two separate functions: one for normal parsing, and one for parsing code that appears after `br` or `throw` and can't actually execute at runtime. Several other opcodes in the same file also merge control flow. The seed patched one merge site. The three W34 siblings patched three additional sites with the same widening obligation.
+When an operation is implemented in multiple places, fixing one doesn't fix the others. `WasmFunctionParser` implements `End` in two separate functions: one for normal parsing, and one for parsing code that appears after `br` or `throw` and can't actually execute at runtime. Several other opcodes in the same file also merge control flow. The seed patched one merge site. The three W34 siblings patched three additional sites with the same widening requirement.
 
 ## Case D — Wasm table64 migration gaps
 
@@ -106,13 +106,13 @@ OpenGL ES 3 overloads a single parameter to mean either a host memory address or
 
 Both commits expose the same underlying ambiguity: a numeric GL argument crossing between buffer-offset and host-pointer interpretations. But the two sit at different layers. In W24, GL correctly treated the value as a bound-PBO offset (a PBO was in fact bound), but WebKit's shared post-processing path (`wipeAlphaChannelFromPixels`) treated the same value as a host address and wrote through it. In W35, with no unpack buffer bound, ANGLE itself treated the IPC-supplied offset as a client pointer and read the texture data from that address. The WebContent-side WebGL bindings normally reject that call, but a compromised WebContent process can emit the IPC message directly and skip the check.
 
-The primitives differ. W24's write is bounded by allocatable PBO sizes, landing closer to a deterministic low-address crash than a shaped write. W35 provides a GPU-process arbitrary-address read into a sampleable texture. The compromised WebContent process can then read that texture back through the normal WebGL path, turning the raw read into a memory-disclosure primitive.
+The primitives differ. W24's write is bounded by allocatable PBO sizes, making a deterministic low-address crash more realistic than a useful write primitive. W35 provides a GPU-process arbitrary-address read into a sampleable texture. The compromised WebContent process can then read that texture back through the normal WebGL path, turning the raw read into a memory-disclosure primitive.
 
-Same file, sibling GL entry points, same underlying offset/pointer ambiguity at different layers. Eleven weeks is a long time for a sibling GL entry point in the same file to stay reachable when the pattern is visible in the diff.
+Same file, sibling GL entry points, same underlying offset/pointer ambiguity at different layers. Eleven weeks is a long time for a sibling path in the same file to remain unfixed once the pattern is visible in the diff.
 
 ---
 
-# Flavor 3 — same shape at sibling subsystems
+# Pattern 3 — same shape at sibling subsystems
 
 The patch adds an authorization or validation pattern at one subsystem. Other subsystems in the same file (or same architectural layer) have the same identifier/handle shape and needed the same treatment.
 
@@ -133,7 +133,7 @@ A compromised WebContent process could therefore submit an identifier associated
 
 The concrete fixes differed. IDB bound resource identifiers to the sending IPC connection at the registry choke point. FileSystem and DOMCache recovered the resource's owning site and checked whether that site was allowed for the sender via `isSiteAllowedForConnection`. The shared invariant was sender-to-resource ownership, not a uniform lookup implementation.
 
-W21 fixes IDB. The sibling sweep happens twelve weeks later, done by a different author across two same-day W32 commits covering FileSystem and DOMCache. That same author enables site validation by default the following week.
+W21 fixes IDB. A broader sibling audit followed twelve weeks later, led by a different author through two same-day commits covering FileSystem and DOMCache. That same author enables site validation by default the following week.
 
 The missing-ownership-check pattern remained in FileSystem and DOMCache for twelve weeks after the IDB fix. Once the broader audit began, three commits followed within a week.
 
@@ -141,9 +141,9 @@ The missing-ownership-check pattern remained in FileSystem and DOMCache for twel
 
 # When the file itself is the signal
 
-Three reports touch `Source/JavaScriptCore/heap/Heap.cpp` over ten weeks: the W23 pair from Flavor 1, plus the W33 MicrotaskCallCache fix from the same flavor. All three sit in JSC's lifetime and invalidation machinery, although they involve different consumers: retained GC data in W23 and detached JIT code in W33. `NetworkStorageManager.cpp` from Flavor 3 shows the same signal from a different subsystem, with four fixes in a three-month window. `GraphicsContextGLANGLE.cpp` from Case E shows it with just two, both touching the same file with related bug shapes.
+Three reports touch `Source/JavaScriptCore/heap/Heap.cpp` over ten weeks: the W23 pair from Pattern 1, plus the W33 MicrotaskCallCache fix from the same pattern. All three sit in JSC's lifetime and invalidation machinery, although they involve different consumers: retained GC data in W23 and detached JIT code in W33. `NetworkStorageManager.cpp` from Pattern 3 shows the same signal from a different subsystem, with four fixes in a three-month window. `GraphicsContextGLANGLE.cpp` from Case E shows it with just two, both touching the same file with related bug shapes.
 
-Same-file clustering across the archive is a useful file-level bug-density heuristic. Whatever hasn't been fixed in a hot file yet is worth reviewing under whatever pattern the earlier fixes established. It does not identify a specific bug. It tells you where to apply the patterns established by earlier fixes.
+Repeated security fixes in the same file are a useful prioritization signal. They do not identify a specific bug, but they show where patterns from earlier fixes may be worth applying again.
 
 ---
 
@@ -151,7 +151,7 @@ Same-file clustering across the archive is a useful file-level bug-density heuri
 
 Invalidation coverage gaps. A cache doesn't get invalidated by the mechanism that should reach it, or an invalidation operation itself has a race in its guard list. The tell: a diff that adds one line calling a new invalidation function into an existing invalidation pass, or adds a guard clause to a periodic clearing routine. Both mean the invalidation matrix had a hole. Ask which other caches or which other invalidation triggers might have the same missing edge.
 
-Fix missed sibling code paths. The patch modifies one instance of a class of similar constructs (opcodes, message handlers, decoder call sites, GL entry points that share a parameter shape). The tell is arithmetic: count the sites the diff touches against the sites in the file with the same shape. If the count is smaller than the family, you have a candidate list. This is the flavor most easily converted into an in-repo sweep by the fix author before shipping. Whether that sweep happens is the question the timing answers.
+Fix missed sibling code paths. The patch modifies one instance of a class of similar constructs (opcodes, message handlers, decoder call sites, GL entry points that share a parameter shape). Search for structurally similar sites and compare them with the sites touched by the diff. Any untouched matches form a candidate list. This pattern is the easiest for a fix author to turn into an in-repo sweep before shipping. The timing shows whether that sweep actually happened.
 
 Cross-subsystem shape. The patch adds an authorization or validation pattern at one subsystem, and the file (or the surrounding directory) contains sibling subsystems with the same identifier/handle shape. The tell: a new call to an origin check or capability lookup added to one message handler, with structurally similar handlers in the same file untouched. Ask which other resource types in the same file received the same treatment. Same-file clustering is often what surfaces the family in the first place.
 
@@ -159,7 +159,7 @@ Cross-subsystem shape. The patch adds an authorization or validation pattern at 
 
 # Closing
 
-The interesting number across the six cases isn't primitive severity. It's the delay between the change or first fix that exposes a pattern and the point at which the surrounding family is audited.
+Across the six cases, what matters is not primitive severity, but how long the broader family went unaudited after the pattern first became visible.
 
 W34 Wasm widening had three sibling fixes land in the same week. W23 GC pair, same week. Wasm table64 took two weeks between the first fix and the two further table64 gaps. MicrotaskCallCache existed for five weeks unwired before `deleteAllCodeBlocks()` was updated to clear it. WebGL PBO offset took eleven weeks between the two commits fixing the same `reinterpret_cast` anti-pattern at sibling GL entry points. NetworkStorageManager took twelve weeks between the IDB fix and the sibling subsystems.
 
