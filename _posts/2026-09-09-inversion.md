@@ -1,9 +1,9 @@
-
+---
 layout: post
 title: "What WebKit fixes leave behind: six cases in variant auditing"
 image: /img/webkit.svg
 tags: [webkit]
-
+---
 * TOC
 {:toc}
 
